@@ -13,6 +13,10 @@ loadLEADSurvey <- function() {
         
         file.contents <- read.csv(file=fileName, header=TRUE, sep=",")
         file.contents <- file.contents[-c(1),]
+        
+        ##Determine some basic info:
+        weekNumber <- strftime(as.Date(substr(unique(file.contents[1,3]),1,10),"%m/%d/%Y"),format="%W") 
+          
       }
     }
   })
