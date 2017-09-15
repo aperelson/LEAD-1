@@ -16,7 +16,6 @@ loadLEADSurvey <- function() {
         
         ##Determine some basic info:
         weekNumber <- strftime(as.Date(substr(unique(file.contents[1,3]),1,10),"%m/%d/%Y"),format="%W") 
-          
       }
     }
   })
