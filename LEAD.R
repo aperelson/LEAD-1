@@ -1,7 +1,7 @@
 loadLEADSurvey <- function() { 
   library(readxl)
 
-  dirToUse <- 'C:\\Users\\EZ002683\\Desktop\\LEAD 1'
+  dirToUse <- 'C:\\Users\\Andrew\\Dropbox\\Development\\LEAD 1'
   setwd(dirToUse)
   folder.names <- list.dirs(full.names = TRUE)
 
