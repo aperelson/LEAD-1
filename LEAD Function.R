@@ -9,6 +9,15 @@ returnValueFromVector <- function(df, cols) {
   gsub(' *$', '', newcol)
 }
 
+responseValue <- function(df) {
+  switch(df,
+         'Strongly Disagree' = 1,
+         'Disagree'	= 2,
+         'Neutral' = 3,
+         'Agree' = 4,
+         'Strongly Agree' = 5)
+}
+
 returnTeamMemberId <- function(teamSelection, teamPosition) {
   switch(paste(teamSelection,teamPosition),
          'Red Coaching Team Rep' = 1,
@@ -56,7 +65,8 @@ returnTeamMemberId <- function(teamSelection, teamPosition) {
 
 loadLEADSurvey <- function() {
   ##dirToUse <- 'C:\\Users\\Andrew\\Dropbox\\Development\\LEAD 1'
-  dirToUse <- 'C:\\Users\\perel_000\\Documents\\GitHub\\LEAD-1'
+  ##dirToUse <- 'C:\\Users\\perel_000\\Documents\\GitHub\\LEAD-1'
+  dirToUse <- 'C:\\Users\\EZ002683\\Desktop\\LEAD 1'
   surveyType <- 0
   
   setwd(dirToUse)
@@ -85,18 +95,21 @@ loadLEADSurvey <- function() {
           surveyType <- 1
         }
         
-        baseSurveyId <- paste0(weekNumber,'_',surveyType)
+        teamSelection <- returnValueFromVector(file.contents, c(10:21))
+        teamPosition <- returnValueFromVector(file.contents, c(22:30))
+        
+        teamMemberId <- mapply(returnTeamMemberId, teamSelection, teamPosition)
+        
+        surveyId <- paste0(teamMemberId,'_',weekNumber,'_',surveyType)
+
+        surveyFinal <- cbind(surveyId, teamMemberId, weekNumber)
+        rownames(surveyFinal) <- c()
         
         if (surveyType == 1) {
-          teamSelection <- returnValueFromVector(file.contents, c(10:21))
-          teamPosition <- returnValueFromVector(file.contents, c(22:30))
-          
-          teamMemberId <- mapply(returnTeamMemberId, teamSelection, teamPosition)
-          
-          surveyId <- paste0(teamMemberId,'_',weekNumber,'_',surveyType)
-
           tookTimeToReflect <- returnValueFromVector(file.contents, c(31:35))
           tookTimeToReflectComments <- file.contents[,c(36:36)]
+          tookTimeToReflectResponseValue <- t(t(lapply(tookTimeToReflect, responseValue)))
+          
           easyToKeepTrackOfThoughts <- returnValueFromVector(file.contents, c(37:41))
           easyToKeepTrackOfThoughtsComments <- file.contents[,c(42:42)]
           feltMembersOfTeamFocused <- returnValueFromVector(file.contents, c(43:47))
@@ -124,10 +137,32 @@ loadLEADSurvey <- function() {
           feelTeamRepHelped <- returnValueFromVector(file.contents, c(109:113))
           feelTeamRepHelpedComments <- file.contents[,c(114:114)] 
           providedFeedback <- returnValueFromVector(file.contents, c(115:116)) 
-          
-          surveyFinal <- cbind(surveyId, teamMemberId, weekNumber)
-          rownames(surveyFinal) <- c()
         }
+        else if (surveyType == 0) {
+          feelPositiveAndEnergised <- returnValueFromVector(file.contents, c(31:35))
+          feelPositiveAndEnergisedComments <- file.contents[,c(36:36)]
+          thisWeekIsGoingToBeGood <- returnValueFromVector(file.contents, c(37:41))
+          thisWeekIsGoingToBeGoodComments <- file.contents[,c(42:42)]
+          thisWeekIsGoingToBeGood <- returnValueFromVector(file.contents, c(37:41))
+          thisWeekIsGoingToBeGoodComments <- file.contents[,c(42:42)]
+          feelTeamPositiveAndEnergised <- returnValueFromVector(file.contents, c(43:47))
+          feelTeamPositiveAndEnergisedComments <- file.contents[,c(48:48)]
+          feelRepEnergisedAndMotivated <- returnValueFromVector(file.contents, c(49:53))
+          feelRepEnergisedAndMotivatedComments <- file.contents[,c(54:54)]
+          knowWhatMeanToDo <- returnValueFromVector(file.contents, c(55:59))
+          knowWhatMeanToDoComments <- file.contents[,c(60:60)]
+          believeICanAchieve <- returnValueFromVector(file.contents, c(61:65))
+          believeICanAchieveComments <- file.contents[,c(66:66)]
+          feelTeamKnowsWhatToDo <- returnValueFromVector(file.contents, c(67:71))
+          feelTeamKnowsWhatToDoComments <- file.contents[,c(72:72)]
+          believeTeamCanAchieve <- returnValueFromVector(file.contents, c(73:77))
+          believeTeamCanAchieveComments <- file.contents[,c(78:78)]
+          feelTeamRepHelped <- returnValueFromVector(file.contents, c(79:83))
+          feelTeamRepHelpedComments <- file.contents[,c(84:84)]
+          feelTeamRepSetRealisticGoals <- returnValueFromVector(file.contents, c(85:89))
+          feelTeamRepSetRealisticGoalsComments <- file.contents[,c(90:90)]
+        }
+        
       }
     }
   })
