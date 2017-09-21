@@ -1,3 +1,4 @@
+
 # function to merge columns into one with a space separator and then
 # remove multiple spaces
 returnValueFromVector <- function(df, cols) {
