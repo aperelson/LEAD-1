@@ -1,4 +1,3 @@
-
 # function to merge columns into one with a space separator and then
 # remove multiple spaces
 returnValueFromVector <- function(df, cols) {
@@ -63,108 +62,116 @@ returnTeamMemberId <- function(teamSelection, teamPosition) {
          'Blue Self-Managed Team Member 4' = 40)
 }
 
+convert6ColumnsToRecordset <- function (sixCols, surveyId, surveyQId) {
+  firstFive <- returnValueFromVector(sixCols, c(1:5))
+  commentsCol <- sixCols[,c(6:6)]
+  firstFiveValue <- t(t(lapply(firstFive, responseValue)))
+  returnDB <- data.frame(firstFiveValue, commentsCol, surveyId)
+  returnDB$SurveyQuestionID <- surveyQId
+  returnDB
+}
+
 
 loadLEADSurvey <- function() {
   ##dirToUse <- 'C:\\Users\\Andrew\\Dropbox\\Development\\LEAD 1'
   ##dirToUse <- 'C:\\Users\\perel_000\\Documents\\GitHub\\LEAD-1'
   dirToUse <- 'C:\\Users\\EZ002683\\Desktop\\LEAD 1'
   surveyType <- 0
+  Response <- data.frame()
+  Feedback <- data.frame()
+  Survey <- data.frame()
   
   setwd(dirToUse)
   folder.names <- list.dirs(full.names = TRUE, recursive = FALSE)
-  
-  result <- sapply(folder.names[-1], function(x) {
-    file.names <- list.files(x, full.names = TRUE, pattern =".csv")  
-    
-    if (length(file.names))
-    {
-      for (j in 1:length(file.names)) {
-        fileName <- file.names[j]
-        
-        file.contents <- read.csv(file=fileName, header=TRUE, sep=",")
-        file.contents <- file.contents[-c(1),]
-        
-        ##Determine some basic info:
-        weekNumber <- strftime(as.Date(substr(unique(file.contents[1,3]),1,10),"%m/%d/%Y"),format="%W") 
-        
-        if (grepl('The week to come', fileName))
-        {
-          surveyType <- 0
-        }
-        else
-        {
-          surveyType <- 1
-        }
-        
-        teamSelection <- returnValueFromVector(file.contents, c(10:21))
-        teamPosition <- returnValueFromVector(file.contents, c(22:30))
-        
-        teamMemberId <- mapply(returnTeamMemberId, teamSelection, teamPosition)
-        
-        surveyId <- paste0(teamMemberId,'_',weekNumber,'_',surveyType)
 
-        surveyFinal <- cbind(surveyId, teamMemberId, weekNumber)
-        rownames(surveyFinal) <- c()
-        
-        if (surveyType == 1) {
-          tookTimeToReflect <- returnValueFromVector(file.contents, c(31:35))
-          tookTimeToReflectComments <- file.contents[,c(36:36)]
-          tookTimeToReflectResponseValue <- t(t(lapply(tookTimeToReflect, responseValue)))
+  if (length(folder.names[-1]))
+  {
+    for (k in 1:length(folder.names[-1])) 
+    {
+      file.names <- list.files(folder.names[-1][k], full.names = TRUE, pattern =".csv")  
+      
+      if (length(file.names))
+      {
+        for (j in 1:length(file.names)) 
+        {
+          fileName <- file.names[j]
           
-          easyToKeepTrackOfThoughts <- returnValueFromVector(file.contents, c(37:41))
-          easyToKeepTrackOfThoughtsComments <- file.contents[,c(42:42)]
-          feltMembersOfTeamFocused <- returnValueFromVector(file.contents, c(43:47))
-          feltMembersOfTeamFocusedComments <- file.contents[,c(48:48)]
-          feltTeamRepHelped <- returnValueFromVector(file.contents, c(49:53))
-          feltTeamRepHelpedComments <- file.contents[,c(54:54)]
-          tookTimeToThinkAboutMyActions <- returnValueFromVector(file.contents, c(55:59))
-          tookTimeToThinkAboutMyActionsComments <- file.contents[,c(60:60)]
-          feelMyTeamThoughtAboutConsequences <- returnValueFromVector(file.contents, c(61:65))
-          feelMyTeamThoughtAboutConsequencesComments <- file.contents[,c(66:66)]
-          feltTeamRepTookTime <- returnValueFromVector(file.contents, c(67:71))
-          feltTeamRepTookTimeComments <- file.contents[,c(72:72)]
-          managedToAchieve <- returnValueFromVector(file.contents, c(73:77))
-          managedToAchieveComments <- file.contents[,c(78:78)]
-          feltMyTeamAchieved <- returnValueFromVector(file.contents, c(79:83))
-          feltMyTeamAchievedComments <- file.contents[,c(84:84)]
-          feltTeamRepAchieved <- returnValueFromVector(file.contents, c(85:89))
-          feltTeamRepAchievedComments <- file.contents[,c(90:90)]
-          feelIGaveMyBest <- returnValueFromVector(file.contents, c(91:95))
-          feelIGaveMyBestComments <- file.contents[,c(96:96)] 
-          feelMyTeamDidTheirBest <- returnValueFromVector(file.contents, c(97:101))
-          feelMyTeamDidTheirBestComments <- file.contents[,c(102:102)] 
-          feelTeamRepRecognition <- returnValueFromVector(file.contents, c(103:107))
-          feelTeamRepRecognitionComments <- file.contents[,c(108:108)] 
-          feelTeamRepHelped <- returnValueFromVector(file.contents, c(109:113))
-          feelTeamRepHelpedComments <- file.contents[,c(114:114)] 
-          providedFeedback <- returnValueFromVector(file.contents, c(115:116)) 
-        }
-        else if (surveyType == 0) {
-          feelPositiveAndEnergised <- returnValueFromVector(file.contents, c(31:35))
-          feelPositiveAndEnergisedComments <- file.contents[,c(36:36)]
-          thisWeekIsGoingToBeGood <- returnValueFromVector(file.contents, c(37:41))
-          thisWeekIsGoingToBeGoodComments <- file.contents[,c(42:42)]
-          thisWeekIsGoingToBeGood <- returnValueFromVector(file.contents, c(37:41))
-          thisWeekIsGoingToBeGoodComments <- file.contents[,c(42:42)]
-          feelTeamPositiveAndEnergised <- returnValueFromVector(file.contents, c(43:47))
-          feelTeamPositiveAndEnergisedComments <- file.contents[,c(48:48)]
-          feelRepEnergisedAndMotivated <- returnValueFromVector(file.contents, c(49:53))
-          feelRepEnergisedAndMotivatedComments <- file.contents[,c(54:54)]
-          knowWhatMeanToDo <- returnValueFromVector(file.contents, c(55:59))
-          knowWhatMeanToDoComments <- file.contents[,c(60:60)]
-          believeICanAchieve <- returnValueFromVector(file.contents, c(61:65))
-          believeICanAchieveComments <- file.contents[,c(66:66)]
-          feelTeamKnowsWhatToDo <- returnValueFromVector(file.contents, c(67:71))
-          feelTeamKnowsWhatToDoComments <- file.contents[,c(72:72)]
-          believeTeamCanAchieve <- returnValueFromVector(file.contents, c(73:77))
-          believeTeamCanAchieveComments <- file.contents[,c(78:78)]
-          feelTeamRepHelped <- returnValueFromVector(file.contents, c(79:83))
-          feelTeamRepHelpedComments <- file.contents[,c(84:84)]
-          feelTeamRepSetRealisticGoals <- returnValueFromVector(file.contents, c(85:89))
-          feelTeamRepSetRealisticGoalsComments <- file.contents[,c(90:90)]
+          file.contents <- read.csv(file=fileName, header=TRUE, sep=",")
+          file.contents <- file.contents[-c(1),]
+          
+          ##Determine some basic info:
+          weekNumber <- strftime(as.Date(substr(unique(file.contents[1,3]),1,10),"%m/%d/%Y"),format="%W") 
+          
+          if (grepl('The week to come', fileName))
+          {
+            surveyType <- 0
+          }
+          else
+          {
+            surveyType <- 1
+          }
+          
+          teamSelection <- returnValueFromVector(file.contents, c(10:21))
+          teamPosition <- returnValueFromVector(file.contents, c(22:30))
+          
+          teamMemberId <- mapply(returnTeamMemberId, teamSelection, teamPosition)
+          
+          surveyId <- paste0(teamMemberId,'_',weekNumber,'_',surveyType)
+          
+          Survey <- cbind(surveyId, teamMemberId, weekNumber)
+          rownames(Survey) <- c()
+  
+          if (surveyType == 1) {
+            tookTimeToReflectDB <- convert6ColumnsToRecordset(file.contents[31:36], surveyId, 203)
+            easyToKeepTrackOfThoughtsDB <- convert6ColumnsToRecordset(file.contents[37:42], surveyId, 204)
+            feltMembersOfTeamFocusedDB <- convert6ColumnsToRecordset(file.contents[43:48], surveyId, 205)
+            feltTeamRepHelpedDB <- convert6ColumnsToRecordset(file.contents[49:54], surveyId, 206)
+            tookTimeToThinkAboutMyActionsDB <- convert6ColumnsToRecordset(file.contents[55:60], surveyId, 207)
+            feelMyTeamThoughtAboutConsequencesDB <- convert6ColumnsToRecordset(file.contents[61:66], surveyId, 208)
+            feltTeamRepTookTimeDB <- convert6ColumnsToRecordset(file.contents[67:72], surveyId, 209)
+            managedToAchieveDB <- convert6ColumnsToRecordset(file.contents[73:78], surveyId, 210)
+            feltMyTeamAchievedDB <- convert6ColumnsToRecordset(file.contents[79:84], surveyId, 211)
+            feltTeamRepAchievedDB <- convert6ColumnsToRecordset(file.contents[85:90], surveyId, 212)
+            feelIGaveMyBestDB <- convert6ColumnsToRecordset(file.contents[91:96], surveyId, 213)
+            feelMyTeamDidTheirBestDB <- convert6ColumnsToRecordset(file.contents[97:102], surveyId, 214)
+            feelTeamRepRecognitionDB <- convert6ColumnsToRecordset(file.contents[103:108], surveyId, 215)
+            feelTeamRepHelpedDB <- convert6ColumnsToRecordset(file.contents[109:114], surveyId, 216)
+  
+            Response <-  rbind(tookTimeToReflectDB, tookTimeToReflectDB, easyToKeepTrackOfThoughtsDB,
+                                       feltMembersOfTeamFocusedDB, feltTeamRepHelpedDB, tookTimeToThinkAboutMyActionsDB,
+                                       feelMyTeamThoughtAboutConsequencesDB, feltTeamRepTookTimeDB, managedToAchieveDB,
+                                       feltMyTeamAchievedDB, feltTeamRepAchievedDB, feelIGaveMyBestDB, 
+                                       feelMyTeamDidTheirBestDB, feelTeamRepRecognitionDB, feelTeamRepHelpedDB)
+            
+            Feedback <- rbind(Feedback, data.frame(surveyId, returnValueFromVector(file.contents, c(115:116))))
+          }
+          else if (surveyType == 0) {
+            feelPositiveAndEnergisedDB <- convert6ColumnsToRecordset(file.contents[31:36], surveyId, 103)
+            thisWeekIsGoingToBeGoodDB <- convert6ColumnsToRecordset(file.contents[37:42], surveyId, 104)
+            feelTeamPositiveAndEnergisedDB <- convert6ColumnsToRecordset(file.contents[43:48], surveyId, 105)
+            feelRepEnergisedAndMotivatedDB <- convert6ColumnsToRecordset(file.contents[49:54], surveyId, 106)
+            knowWhatMeantToDoDB <- convert6ColumnsToRecordset(file.contents[55:60], surveyId, 107)
+            believeICanAchieveDB <- convert6ColumnsToRecordset(file.contents[61:66], surveyId, 108)
+            feelTeamKnowsWhatToDoDB <- convert6ColumnsToRecordset(file.contents[67:72], surveyId, 109)
+            believeTeamCanAchieveDB <- convert6ColumnsToRecordset(file.contents[73:78], surveyId, 110)
+            feelTeamRepHelpedDB <- convert6ColumnsToRecordset(file.contents[79:84], surveyId, 111)
+            feelTeamRepSetRealisticGoalsDB <- convert6ColumnsToRecordset(file.contents[85:90], surveyId, 112)
+            
+            Response <-  rbind(Response, feelPositiveAndEnergisedDB, thisWeekIsGoingToBeGoodDB,
+                                       feelTeamPositiveAndEnergisedDB, feelRepEnergisedAndMotivatedDB, knowWhatMeantToDoDB,
+                                       believeICanAchieveDB, feelTeamKnowsWhatToDoDB, believeTeamCanAchieveDB,
+                                       feelTeamRepHelpedDB, feelTeamRepSetRealisticGoalsDB)
+          }
         }
         
+        x <- "SurveyQuestionID"
+        Response <- Response[c(x, setdiff(names(Response), x))]
+        colnames(Response) <- c("SurveyQuestionID", "Value", "Comment", "SurveyID")
       }
     }
-  })
+  }
+    
+  Survey
+  Feedback
+  Response
 }
