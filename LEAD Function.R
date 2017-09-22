@@ -65,14 +65,13 @@ returnTeamMemberId <- function(teamSelection, teamPosition) {
 convert6ColumnsToRecordset <- function (sixCols, surveyId, surveyQId) {
   firstFive <- returnValueFromVector(sixCols, c(1:5))
   commentsCol <- sixCols[,c(6:6)]
-  firstFiveValue <- t(t(lapply(firstFive, responseValue)))
-  returnDB <- data.frame(firstFiveValue, commentsCol, surveyId)
+  Value <- as.numeric(t(t(lapply(firstFive, responseValue))))
+  returnDB <- data.frame(Value, commentsCol, surveyId)
   returnDB$SurveyQuestionID <- surveyQId
   returnDB
 }
 
 
-loadLEADSurvey <- function() {
   ##dirToUse <- 'C:\\Users\\Andrew\\Dropbox\\Development\\LEAD 1'
   ##dirToUse <- 'C:\\Users\\perel_000\\Documents\\GitHub\\LEAD-1'
   dirToUse <- 'C:\\Users\\EZ002683\\Desktop\\LEAD 1'
@@ -118,9 +117,8 @@ loadLEADSurvey <- function() {
           
           surveyId <- paste0(teamMemberId,'_',weekNumber,'_',surveyType)
           
-          Survey <- cbind(surveyId, teamMemberId, weekNumber)
-          rownames(Survey) <- c()
-  
+          Survey <- rbind(Survey, cbind(surveyId, teamMemberId, weekNumber))
+
           if (surveyType == 1) {
             tookTimeToReflectDB <- convert6ColumnsToRecordset(file.contents[31:36], surveyId, 203)
             easyToKeepTrackOfThoughtsDB <- convert6ColumnsToRecordset(file.contents[37:42], surveyId, 204)
@@ -137,7 +135,7 @@ loadLEADSurvey <- function() {
             feelTeamRepRecognitionDB <- convert6ColumnsToRecordset(file.contents[103:108], surveyId, 215)
             feelTeamRepHelpedDB <- convert6ColumnsToRecordset(file.contents[109:114], surveyId, 216)
   
-            Response <-  rbind(tookTimeToReflectDB, tookTimeToReflectDB, easyToKeepTrackOfThoughtsDB,
+            Response <-  rbind(Response, tookTimeToReflectDB, easyToKeepTrackOfThoughtsDB,
                                        feltMembersOfTeamFocusedDB, feltTeamRepHelpedDB, tookTimeToThinkAboutMyActionsDB,
                                        feelMyTeamThoughtAboutConsequencesDB, feltTeamRepTookTimeDB, managedToAchieveDB,
                                        feltMyTeamAchievedDB, feltTeamRepAchievedDB, feelIGaveMyBestDB, 
@@ -163,15 +161,22 @@ loadLEADSurvey <- function() {
                                        feelTeamRepHelpedDB, feelTeamRepSetRealisticGoalsDB)
           }
         }
-        
-        x <- "SurveyQuestionID"
-        Response <- Response[c(x, setdiff(names(Response), x))]
-        colnames(Response) <- c("SurveyQuestionID", "Value", "Comment", "SurveyID")
       }
     }
   }
     
-  Survey
-  Feedback
-  Response
-}
+  rownames(Survey) <- c()
+  rownames(Response) <- c()
+  rownames(Feedback) <- c()
+  x <- "SurveyQuestionID"
+  Response <- Response[c(x, setdiff(names(Response), x))]
+  colnames(Response) <- c("SurveyQuestionID", "Value", "Comment", "SurveyID")
+  colnames(Feedback) <- c("SurveyID", "Provided")
+  
+  rm(tookTimeToReflectDB, easyToKeepTrackOfThoughtsDB, feltMembersOfTeamFocusedDB, feltTeamRepHelpedDB,
+     tookTimeToThinkAboutMyActionsDB, feelMyTeamThoughtAboutConsequencesDB, feltTeamRepTookTimeDB,
+     managedToAchieveDB, feltMyTeamAchievedDB, feltTeamRepAchievedDB, feelIGaveMyBestDB, 
+     feelMyTeamDidTheirBestDB, feelTeamRepRecognitionDB, feelTeamRepHelpedDB, feelPositiveAndEnergisedDB,
+     thisWeekIsGoingToBeGoodDB, feelTeamPositiveAndEnergisedDB, feelRepEnergisedAndMotivatedDB,
+     knowWhatMeantToDoDB, believeICanAchieveDB, feelTeamKnowsWhatToDoDB, believeTeamCanAchieveDB, 
+     feelTeamRepSetRealisticGoalsDB, file.contents)
