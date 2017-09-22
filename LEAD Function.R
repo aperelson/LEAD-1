@@ -100,6 +100,7 @@ convert6ColumnsToRecordset <- function (sixCols, surveyId, surveyQId) {
           
           ##Determine some basic info:
           weekNumber <- strftime(as.Date(substr(unique(file.contents[1,3]),1,10),"%m/%d/%Y"),format="%W") 
+          weekNumber <- toString(as.numeric(weekNumber) - 36)
           
           if (grepl('The week to come', fileName))
           {
