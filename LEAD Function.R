@@ -72,9 +72,7 @@ convert6ColumnsToRecordset <- function (sixCols, surveyId, surveyQId) {
 }
 
 
-  ##dirToUse <- 'C:\\Users\\Andrew\\Dropbox\\Development\\LEAD 1'
-  ##dirToUse <- 'C:\\Users\\perel_000\\Documents\\GitHub\\LEAD-1'
-  dirToUse <- 'C:\\Users\\EZ002683\\Desktop\\LEAD 1'
+  dirToUse <- 'C:\\Development\\LEAD 1'
   surveyType <- 0
   Response <- data.frame()
   Feedback <- data.frame()
@@ -83,11 +81,11 @@ convert6ColumnsToRecordset <- function (sixCols, surveyId, surveyQId) {
   setwd(dirToUse)
   folder.names <- list.dirs(full.names = TRUE, recursive = FALSE)
 
-  if (length(folder.names[-1]))
+  if (length(folder.names))
   {
-    for (k in 1:length(folder.names[-1])) 
+    for (k in 1:length(folder.names)) 
     {
-      file.names <- list.files(folder.names[-1][k], full.names = TRUE, pattern =".csv")  
+      file.names <- list.files(folder.names[k], full.names = TRUE, pattern =".csv")  
       
       if (length(file.names))
       {
